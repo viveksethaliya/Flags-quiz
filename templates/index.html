@@ -11,7 +11,7 @@
         }
         body {
             text-align: center;
-            font-family: CustomFont;/*, Arial, sans-serif; */
+            font-family: CustomFont;
             background: #0001A7;
             margin: 0;
             padding: 0;
@@ -57,19 +57,19 @@
         }
         @keyframes blink-blue {
             0%, 100% {
-                background-color: #009933; /* Original button color */
+                background-color: #009933;
             }
             50% {
-                background-color: blue; /* Blink color for correct */
+                background-color: blue;
             }
         }
 
         @keyframes blink-red {
             0%, 100% {
-                background-color: #009933; /* Original button color */
+                background-color: #009933;
             }
             50% {
-                background-color: red; /* Blink color for wrong */
+                background-color: red;
             }
         }
 
@@ -80,13 +80,6 @@
         button.blink-red {
             animation: blink-red 0.2s ease-in-out 3;
         }
-
-        /* .options button.correct {
-            background-color: #28a745 !important;
-        }
-        .options button.wrong {
-            background-color: #dc3545 !important;
-        } */
         p {
             font-size: 18px;
             color: #666;
@@ -163,7 +156,7 @@
 
         function submitAnswer(button, selectedOption, correctAnswer) {
             const optionsButtons = document.querySelectorAll('.options button');
-            optionsButtons.forEach(btn => btn.disabled = true); // Disable all buttons after selection
+            optionsButtons.forEach(btn => btn.disabled = true);
 
             if (selectedOption === correctAnswer) {
                 button.classList.add('correct', 'blink-blue');
@@ -177,7 +170,7 @@
             setTimeout(() => {
                 document.getElementById('feedback').textContent = "";
                 loadNextRound();
-            }, 2000); // Pause for 2 seconds
+            }, 2000); // peuse for 2 seconds
         }
         loadNextRound();
     </script>
