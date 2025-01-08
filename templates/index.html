@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag Guessing Game</title>
+    <style>
+        @font-face {
+            font-family: CustomFont;
+            src: url('/static/DOSfont.ttf');
+        }
+        body {
+            text-align: center;
+            font-family: CustomFont;/*, Arial, sans-serif; */
+            background: #0001A7;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 32px;
+            color: #333;
+        }
+        #game {
+            background-color: #B3B3B3;
+            padding: 20px;
+            margin: 70px auto;
+            margin-bottom: 0px;
+            box-shadow: 20px 20px 0 rgba(0, 0, 0, 1);
+            width: 80%;
+            max-width: 600px;
+            align-self: center;
+            scale: 1.3;
+        }
+        img {
+            margin: 20px 0;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 1);
+            width: 400px;
+            height: 250px;
+            object-fit: cover;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-family: CustomFont;
+        }
+        .options button {
+            padding: 10px;
+            font-size: 16px;
+            border: 0px;
+            cursor: pointer;
+            background-color: #009933;
+            color: black;
+            transition: border 0.3s ease;
+            font-family: CustomFont;
+        }
+        @keyframes blink-blue {
+            0%, 100% {
+                background-color: #009933; /* Original button color */
+            }
+            50% {
+                background-color: blue; /* Blink color for correct */
+            }
+        }
+
+        @keyframes blink-red {
+            0%, 100% {
+                background-color: #009933; /* Original button color */
+            }
+            50% {
+                background-color: red; /* Blink color for wrong */
+            }
+        }
+
+        button.blink-blue {
+            animation: blink-blue 0.2s ease-in-out 3;
+        }
+
+        button.blink-red {
+            animation: blink-red 0.2s ease-in-out 3;
+        }
+
+        /* .options button.correct {
+            background-color: #28a745 !important;
+        }
+        .options button.wrong {
+            background-color: #dc3545 !important;
+        } */
+        p {
+            font-size: 18px;
+            color: #666;
+            margin: 10px 0;
+        }
+        #feedback {
+            font-size: 20px;
+            color: black;
+        }
+        .scoreboard {
+            font-size: 18px;
+            margin-bottom: 20px;
+            align-items: right !important;
+        }
+        .scoreboard span {
+            color: black;
+        }
+        hr{
+            border: 1 #bfbfbf;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div class="scoreboard">
+            <span id="current-round"></span>
+            out of <span id="remain-round"></span> |
+            Score: <span id="current-score"></span>
+        </div>
+        <hr>
+        <img id="flag" src="" alt="Country Flag">
+        <div class="options" id="options"></div>
+    </div>
+    <p id="feedback"></p>
+    <script>
+        let totalRounds = 40;
+        let currentRound = 1;
+        let score = 0;
+
+        function loadNextRound() {
+            document.getElementById('current-round').innerText = currentRound;
+            document.getElementById('remain-round').innerText = totalRounds - currentRound;
+            document.getElementById('current-score').innerText = score;
+
+            if (currentRound > totalRounds) {
+                document.getElementById("game").innerHTML = `<h2>Game Over!</h2><p>Final Score: ${score}</p>`;
+                document.getElementById("feedback").innerText = "";
+                return;
+            }
+
+            fetch('/next_round', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                document.getElementById('flag').src = data.flag;
+                const optionsDiv = document.getElementById('options');
+                optionsDiv.innerHTML = '';
+                data.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.onclick = () => submitAnswer(button, option, data.answer);
+                    optionsDiv.appendChild(button);
+                });
+
+                currentRound++;
+            });
+        }
+
+        function submitAnswer(button, selectedOption, correctAnswer) {
+            const optionsButtons = document.querySelectorAll('.options button');
+            optionsButtons.forEach(btn => btn.disabled = true); // Disable all buttons after selection
+
+            if (selectedOption === correctAnswer) {
+                button.classList.add('correct', 'blink-blue');
+                document.getElementById('feedback').textContent = "Correct!";
+                score++;
+            } else {
+                button.classList.add('wrong', 'blink-red');
+                document.getElementById('feedback').textContent = "Wrong!";
+            }
+
+            setTimeout(() => {
+                document.getElementById('feedback').textContent = "";
+                loadNextRound();
+            }, 2000); // Pause for 2 seconds
+        }
+        loadNextRound();
+    </script>
+</body>
+</html>
